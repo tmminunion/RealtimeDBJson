@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSONEditor - Dynamic File</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/jsoneditor@9.5.1/dist/jsoneditor.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #jsoneditor {
+        width: 100%;
+        height: 500px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container py-5">
+      <div class="mb-3">
+        <a href="dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+      </div>
+
+      <div id="filename-display" class="alert alert-info fw-bold"></div>
+
+      <div id="jsoneditor" class="mb-4"></div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <button id="save" class="btn btn-success">💾 Save</button>
+        <button id="reload" class="btn btn-outline-primary">🔄 Reload</button>
+        <button id="rename" class="btn btn-warning">✏️ Rename File</button>
+        <button id="delete" class="btn btn-danger">🗑️ Delete File</button>
+      </div>
+    </div>
+
+    <!-- JSONEditor & Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.5.1/dist/jsoneditor.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        let filename = urlParams.get("file");
+
+        if (!filename) {
+          alert("No file specified. Redirecting to dashboard.");
+          window.location.href = "dashboard.html";
+          return;
+        }
+
+        const filenameDisplay = document.getElementById("filename-display");
+        filenameDisplay.textContent = `Editing: ${filename}.json`;
+
+        const container = document.getElementById("jsoneditor");
+        const editor = new JSONEditor(container, {
+          mode: "tree",
+          modes: ["code", "tree", "form", "text", "view"],
+          onError: (err) => alert(err.toString()),
+        });
+
+        function loadData() {
+          fetch(`/api/files/${filename}`)
+            .then((res) => {
+              if (!res.ok) throw new Error("File not found");
+              return res.json();
+            })
+            .then((data) => editor.set(data))
+            .catch((err) => {
+              console.error("Error loading data:", err);
+              alert("Error loading data: " + err.message);
+            });
+        }
+
+        // Save button
+        document.getElementById("save").addEventListener("click", () => {
+          const data = editor.get();
+          fetch(`/api/files/${filename}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          })
+            .then((res) => {
+              if (!res.ok) throw new Error("Failed to save");
+              return res.json();
+            })
+            .then((res) => alert(res.message || "Saved successfully"))
+            .catch((err) => {
+              console.error("Save error:", err);
+              alert("Error saving: " + err.message);
+            });
+        });
+
+        // Reload button
+        document.getElementById("reload").addEventListener("click", loadData);
+
+        // Rename button
+        document
+          .getElementById("rename")
+          .addEventListener("click", async () => {
+            const newName = prompt(
+              "Enter new filename (without .json):",
+              filename
+            );
+            if (!newName || newName === filename) return;
+
+            try {
+              const data = editor.get();
+              // Create new file with same content
+              const res = await fetch(`/api/files/${newName}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+              });
+              if (!res.ok) throw new Error("Failed to create new file");
+
+              // Delete old file
+              await fetch(`/api/files/${filename}`, { method: "DELETE" });
+
+              alert("File renamed successfully");
+              window.location.href = `editor?file=${newName}`;
+            } catch (err) {
+              console.error("Rename error:", err);
+              alert("Error renaming: " + err.message);
+            }
+          });
+
+        // Delete button
+        document
+          .getElementById("delete")
+          .addEventListener("click", async () => {
+            if (!confirm(`Are you sure you want to delete ${filename}.json?`))
+              return;
+
+            try {
+              const res = await fetch(`/api/files/${filename}`, {
+                method: "DELETE",
+              });
+              if (!res.ok) throw new Error("Delete failed");
+              alert("File deleted successfully");
+              window.location.href = "dashboard.html";
+            } catch (err) {
+              console.error("Delete error:", err);
+              alert("Error deleting file: " + err.message);
+            }
+          });
+
+        loadData();
+      });
+    </script>
+  </body>
+</html>

@@ -1,21 +1,54 @@
 const express = require("express");
 const WebSocket = require("ws");
 const path = require("path");
-
+const bodyParser = require("body-parser");
 const app = express();
 const PORT = 8008;
 const fs = require("fs");
+// Import router modular
+const jsonFilesRouter = require("./routes/jsonFiles");
+const jsonFi = require("./routes/path");
+
+// Middleware
+app.use(bodyParser.json());
+app.use(express.static("public"));
+
+// Route API
+app.use("/api/files", jsonFilesRouter);
+app.use("/path", jsonFi);
+
+// Route untuk frontend
+app.get("/editor", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/editor.html"));
+});
+
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/list.html"));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something broke!" });
+});
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   next();
 });
 
-app.use(express.static("public"));
+app.use(express.json());
 
 // Create HTTP server
 const server = app.listen(PORT, () => {
   console.log(`HTTP server running on port ${PORT}`);
+
+  console.log("API Endpoints:");
+  console.log("- GET    /api/files         - List all JSON files");
+  console.log("- GET    /api/files/:file   - Get a JSON file");
+  console.log("- POST   /api/files/:file   - Create/update a JSON file");
+  console.log("- PUT    /api/files/:file   - Update a JSON file");
+  console.log("- DELETE /api/files/:file   - Delete a JSON file");
 });
 
 // Create WebSocket server
@@ -70,12 +103,6 @@ function getNestedProperty(obj, path) {
   return current;
 }
 
-// Helper function to get file path from data path
-function getFilePath(dataPath) {
-  const [category, id] = dataPath.split("/");
-  return path.join(DATA_DIR, `${category}.json`);
-}
-
 // Load or initialize data file
 function loadDataFile(filePath) {
   try {
@@ -112,6 +139,7 @@ wss.on("connection", (ws) => {
 
   ws.on("message", (msg) => {
     // Handle set operation
+    console.log("📩 Received message from WebSocket:", JSON.parse(msg)); // tambahkan ini
     let data;
     try {
       data = JSON.parse(msg);
@@ -169,6 +197,7 @@ wss.on("connection", (ws) => {
     }
     // Handle get operation
     if (data.type === "get" && data.path) {
+      console.log("ada akses");
       const filePath = getFilePath(data.path);
       const [category, id] = data.path.split("/");
       const fileData = loadDataFile(filePath);

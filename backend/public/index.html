@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>JSON Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="db.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Realtime JSON Dashboard</h1>
+      <div id="path-list" class="card">
+        <h2>Available Paths</h2>
+        <ul id="paths"></ul>
+        <div class="form-group">
+          <input type="text" id="new-path" placeholder="Create new path..." />
+          <button onclick="createPath()">Create</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const db = new RealtimeDB("ws://localhost:8008");
+
+      async function loadPaths() {
+        const response = await fetch("/path");
+        const paths = await response.json();
+        const list = document.getElementById("paths");
+
+        list.innerHTML = paths
+          .map(
+            (p) => `
+        <li>
+          <a href="dashboard.html?path=${p.name}" target="_blank">
+            ${p.name} (${(p.size / 1024).toFixed(2)} KB)
+          </a>
+        </li>
+      `
+          )
+          .join("");
+      }
+
+      function createPath() {
+        const pathName = document.getElementById("new-path").value;
+        if (pathName) {
+          db.set(`${pathName}/_init`, { createdAt: new Date().toISOString() });
+          setTimeout(loadPaths, 500);
+        }
+      }
+
+      loadPaths();
+    </script>
+  </body>
+</html>

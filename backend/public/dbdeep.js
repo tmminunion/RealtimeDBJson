@@ -1,10 +1,10 @@
+// public/db.js
 class RealtimeDB {
   constructor(wsUrl) {
     this.wsUrl = wsUrl;
     this.socket = null;
     this.listeners = {};
     this.dataCallbacks = {};
-    this.queue = []; // ⬅️ Antrian perintah
     this.connect();
   }
 
@@ -13,23 +13,14 @@ class RealtimeDB {
 
     this.socket.onopen = () => {
       console.log("🟢 WebSocket connected");
-
-      // Jalankan semua yang ada di queue
-      while (this.queue.length > 0) {
-        const action = this.queue.shift();
-        this.socket.send(JSON.stringify(action));
-      }
-
-      // Resubscribe semua listener
       Object.keys(this.listeners).forEach((path) => {
-        this.sendMessage({ type: "subscribe", path });
+        this.subscribe(path);
       });
     };
 
     this.socket.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        console.log("📩 Received message from WebSocket:", msg);
 
         if (msg.type === "update" && this.listeners[msg.path]) {
           this.listeners[msg.path].forEach((callback) => callback(msg.data));
@@ -52,16 +43,13 @@ class RealtimeDB {
     };
   }
 
-  sendMessage(msg) {
-    if (this.socket.readyState === 1) {
-      this.socket.send(JSON.stringify(msg));
-    } else {
-      this.queue.push(msg); // ⬅️ simpan di antrian dulu
-    }
-  }
-
   subscribe(path) {
-    this.sendMessage({ type: "subscribe", path });
+    this.socket.send(
+      JSON.stringify({
+        type: "subscribe",
+        path,
+      })
+    );
   }
 
   on(path, callback) {
@@ -73,28 +61,46 @@ class RealtimeDB {
   }
 
   get(path, callback) {
+    console.log("ambiul");
     if (!this.dataCallbacks[path]) {
       this.dataCallbacks[path] = [];
     }
     this.dataCallbacks[path].push(callback);
-
-    this.sendMessage({ type: "get", path });
+    this.socket.send(
+      JSON.stringify({
+        type: "get",
+        path,
+      })
+    );
   }
 
   set(path, data) {
-    console.log("update path = ", path);
-    console.log("update data = ", data);
-    this.sendMessage({ type: "set", path, data });
+    this.socket.send(
+      JSON.stringify({
+        type: "set",
+        path,
+        data,
+      })
+    );
   }
 
   update(path, data) {
-    console.log("update path = ", path);
-    console.log("update data = ", data);
-    this.sendMessage({ type: "update", path, data });
+    this.socket.send(
+      JSON.stringify({
+        type: "update",
+        path,
+        data,
+      })
+    );
   }
 
   delete(path) {
-    this.sendMessage({ type: "delete", path });
+    this.socket.send(
+      JSON.stringify({
+        type: "delete",
+        path,
+      })
+    );
   }
 }
 
