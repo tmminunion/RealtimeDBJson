@@ -1,0 +1,66 @@
+{
+  "12345": {
+    "name": "Gudrun Schiller",
+    "hadir": false,
+    "waktu": "2025-05-21T10:30:53.474Z",
+    "lokasi": "Gleasonbury"
+  },
+  "name": "Major Durgan",
+  "hadir": true,
+  "waktu": "2025-05-21T10:03:18.226Z",
+  "lokasi": "Chanelleton",
+  "BT7DD9JVswCPvqcZMfp": {
+    "name": "Javon Buckridge",
+    "hadir": false,
+    "waktu": "2025-05-21T10:09:34.313Z",
+    "lokasi": "New Tellyview"
+  },
+  "BT6Pf5ZMu4AHUJPUOFY": {
+    "name": "Oceane Gutmann",
+    "hadir": true,
+    "waktu": "2025-05-21T10:10:36.880Z",
+    "lokasi": "New Cobymouth"
+  },
+  "BTvaSSDmLAR8niHmKzO": {
+    "name": "Audra Kuphal",
+    "hadir": true,
+    "waktu": "2025-05-21T10:10:41.632Z",
+    "lokasi": "Abbottview"
+  },
+  "BTRbQkAW1kGzrg8Fmkm": {
+    "name": "Dr. Caesar Dare",
+    "hadir": false,
+    "waktu": "2025-05-21T10:11:01.152Z",
+    "lokasi": "Quigleyhaven"
+  },
+  "BThTrGQ9tpwvsnjpcVe": {
+    "name": "Dr. Addie Schultz",
+    "hadir": true,
+    "waktu": "2025-05-21T10:11:06.688Z",
+    "lokasi": "North Clemens"
+  },
+  "BTMSvE3Z72HunUnNcQc": {
+    "name": "Khalil Yundt",
+    "hadir": false,
+    "waktu": "2025-05-21T10:11:12.040Z",
+    "lokasi": "Lake Edgar"
+  },
+  "BTy8ZQvDwK10yoCAhBf": {
+    "name": "Dangelo Braun",
+    "hadir": false,
+    "waktu": "2025-05-21T10:11:18.056Z",
+    "lokasi": "Lake Lelia"
+  },
+  "BTCftR0LWY2I4fcvMix": {
+    "name": "Adriel Weimann",
+    "hadir": false,
+    "waktu": "2025-05-21T10:11:22.424Z",
+    "lokasi": "Lake Oliver"
+  },
+  "BTRkZLzWFVNL90mtcfi": {
+    "name": "Elliot Haley",
+    "hadir": true,
+    "waktu": "2025-05-21T10:11:29.128Z",
+    "lokasi": "Kshlerintown"
+  }
+}

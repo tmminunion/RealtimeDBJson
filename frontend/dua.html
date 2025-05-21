@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RealtimeDB Debug</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"></script>
+    <script src="db.js"></script>
+    <style>
+      #status {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .connected {
+        background: #d4edda;
+        color: #155724;
+      }
+      .disconnected {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>lovesi System Debug</h1>
+    <div id="status" class="disconnected">Disconnected</div>
+    <button onclick="sendData()">Send Random Data</button>
+    <button onclick="getData()">Get Current Data</button>
+    <div>
+      <h3>Last Sent Data:</h3>
+      <pre id="sentData"></pre>
+    </div>
+    <div>
+      <h3>Received Data:</h3>
+      <pre id="output">No data received yet</pre>
+    </div>
+    <script>
+      const characters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+      function generateString(length) {
+        let result = "BT";
+        const charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
+          result += characters.charAt(
+            Math.floor(Math.random() * charactersLength)
+          );
+        }
+
+        return result;
+      }
+    </script>
+    <script>
+      const db = new RealtimeDB("ws://localhost:8008");
+      let connectionStatus = document.getElementById("status");
+
+      // Connection status updates
+      db.socket.onopen = function () {
+        connectionStatus.textContent = "Connected";
+        connectionStatus.className = "status connected";
+        console.log("WebSocket connected");
+      };
+
+      db.socket.onclose = function () {
+        connectionStatus.textContent = "Disconnected";
+        connectionStatus.className = "status disconnected";
+        console.log("WebSocket disconnected");
+      };
+
+      // Listen for updates
+      db.on("love", (data) => {
+        console.log("Update received:", data);
+        document.getElementById("output").textContent = JSON.stringify(
+          data,
+          null,
+          2
+        );
+      });
+
+      function sendData() {
+        const randomData = {
+          name: faker.name.findName(),
+          hadir: faker.random.boolean(),
+          waktu: new Date().toISOString(),
+          lokasi: faker.address.city(),
+        };
+        document.getElementById("sentData").textContent = JSON.stringify(
+          randomData,
+          null,
+          2
+        );
+        db.set(
+          "love/BTvCpCHZCvNBPM9I2SN/makan/" + generateString(17),
+          randomData
+        );
+        console.log("Data sent:", randomData);
+      }
+
+      function getData() {
+        db.get("love", (data) => {
+          console.log("Current data:", data);
+          if (data) {
+            document.getElementById("output").textContent = JSON.stringify(
+              data,
+              null,
+              2
+            );
+          } else {
+            document.getElementById("output").textContent = "No data found";
+          }
+        });
+      }
+
+      // UPDATE (patch)
+      function upda() {
+        db.update("dodol/BTxHrXEFZky8oKMThBC", {
+          hadir: true, // Hanya update field 'hadir'
+          waktu: "ahhahahahhahah",
+        });
+      }
+      // DELETE
+      function del() {
+        db.delete("dodol/BThEF");
+      }
+      //
+
+      // Load initial data
+      db.get("love", (data) => {
+        console.log("Initial data loaded:", data);
+        if (data) {
+          document.getElementById("output").textContent = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        }
+      });
+      // upda();
+      //del();
+    </script>
+  </body>
+</html>

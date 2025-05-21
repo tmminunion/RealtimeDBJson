@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RealtimeDB Debug</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"></script>
+    <script src="db.js"></script>
+    <style>
+      #status {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .connected {
+        background: #d4edda;
+        color: #155724;
+      }
+      .disconnected {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Absensi System Debug</h1>
+    <div id="status" class="disconnected">Disconnected</div>
+    <button onclick="sendData()">Send Random Data</button>
+    <button onclick="getData()">Get Current Data</button>
+    <div>
+      <h3>Last Sent Data:</h3>
+      <pre id="sentData"></pre>
+    </div>
+    <div>
+      <h3>Received Data:</h3>
+      <pre id="output">No data received yet</pre>
+    </div>
+
+    <script>
+      const db = new RealtimeDB("ws://localhost:8008");
+      let connectionStatus = document.getElementById("status");
+
+      // Connection status updates
+      db.socket.onopen = function () {
+        connectionStatus.textContent = "Connected";
+        connectionStatus.className = "status connected";
+        console.log("WebSocket connected");
+      };
+
+      db.socket.onclose = function () {
+        connectionStatus.textContent = "Disconnected";
+        connectionStatus.className = "status disconnected";
+        console.log("WebSocket disconnected");
+      };
+
+      // Listen for updates
+      db.on("absen/12345", (data) => {
+        console.log("Update received:", data);
+        document.getElementById("output").textContent = JSON.stringify(
+          data,
+          null,
+          2
+        );
+      });
+
+      function sendData() {
+        const randomData = {
+          name: faker.name.findName(),
+          hadir: faker.random.boolean(),
+          waktu: new Date().toISOString(),
+          lokasi: faker.address.city(),
+        };
+        document.getElementById("sentData").textContent = JSON.stringify(
+          randomData,
+          null,
+          2
+        );
+        db.set("absen/12345", randomData);
+        console.log("Data sent:", randomData);
+      }
+
+      function getData() {
+        db.get("absen/12345", (data) => {
+          console.log("Current data:", data);
+          if (data) {
+            document.getElementById("output").textContent = JSON.stringify(
+              data,
+              null,
+              2
+            );
+          } else {
+            document.getElementById("output").textContent = "No data found";
+          }
+        });
+      }
+
+      // Load initial data
+      db.get("absen/12345", (data) => {
+        console.log("Initial data loaded:", data);
+        if (data) {
+          document.getElementById("output").textContent = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        }
+      });
+    </script>
+  </body>
+</html>

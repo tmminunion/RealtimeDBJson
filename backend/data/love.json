@@ -1,0 +1,30 @@
+{
+  "BTvCpCHZCvNBPM9I2SN": {
+    "makan": {
+      "BT1uEe1PWKZRCXzKDgF": {
+        "name": "Felton Ondricka",
+        "hadir": true,
+        "waktu": "2025-05-21T10:25:14.172Z",
+        "lokasi": "West Cathyfurt"
+      },
+      "BTQ12sCNSYFOAtdjUgs": {
+        "name": "Alaina Schaden",
+        "hadir": true,
+        "waktu": "2025-05-21T10:25:16.236Z",
+        "lokasi": "Adelaborough"
+      },
+      "BTcBRmrKXtSLlrZdGIB": {
+        "name": "Flo Jacobs",
+        "hadir": false,
+        "waktu": "2025-05-21T10:25:18.796Z",
+        "lokasi": "Donnellyborough"
+      },
+      "BT0KLkWosE5v6TKcwMF": {
+        "name": "Ms. Samanta Brown",
+        "hadir": true,
+        "waktu": "2025-05-21T10:25:21.052Z",
+        "lokasi": "Lake Reymundoberg"
+      }
+    }
+  }
+}
