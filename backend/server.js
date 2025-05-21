@@ -1,8 +1,26 @@
+const express = require("express");
 const WebSocket = require("ws");
-const fs = require("fs");
 const path = require("path");
 
-const wss = new WebSocket.Server({ port: 8008 });
+const app = express();
+const PORT = 8008;
+const fs = require("fs");
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
+app.use(express.static("public"));
+
+// Create HTTP server
+const server = app.listen(PORT, () => {
+  console.log(`HTTP server running on port ${PORT}`);
+});
+
+// Create WebSocket server
+
+const wss = new WebSocket.Server({ server });
 const DATA_DIR = path.join(__dirname, "data");
 
 // Ensure data directory exists
