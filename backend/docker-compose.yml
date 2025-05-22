@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  Nudb:
+    build: .
+    container_name: Nudb
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
