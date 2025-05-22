@@ -1,4 +1,4 @@
-const db = new RealtimeDB('ws://localhost:8008');
+const db = new RealtimeDB(process.env.WSS_URL);
 
 const chatMessages = document.getElementById('chat-messages');
 const messageInput = document.getElementById('message-input');

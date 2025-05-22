@@ -57,7 +57,7 @@
     <script>
       const urlParams = new URLSearchParams(window.location.search);
       let filename = urlParams.get("file");
-      const db = new RealtimeDB("ws://localhost:8008");
+      const db = new RealtimeDB(process.env.WSS_URL);
 
       document.addEventListener("DOMContentLoaded", function () {
         if (!filename) {

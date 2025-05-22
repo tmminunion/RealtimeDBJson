@@ -1,26 +1,31 @@
-version: 1.0.0
+version: "1.0"
 name: Nudb
 description: Simple JSON file manager with Web UI and chat
 developer: nufat.id
 author: Nunu Fatulah
 icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/code-json.svg
 website: https://github.com/yourrepo
-port_map: "8008"
-protocol: http
-image: nufat/Nudb:latest
+category: Utilities
+image: nufat/nudb:latest
+
+index: /
+
+port_map:
+  - container: 8008
+    host: 8008
+    protocol: http
+
 volumes:
   - container: /app/data
     host: /DATA/AppData/Nudb/data
     description: JSON storage
+
 envs:
   - name: NODE_ENV
     value: production
-index: /
-category: Utilities
-envs:
   - name: ADMIN_USERNAME
     value: admin
   - name: ADMIN_PASSWORD
     value: secret123
-  - name : JWT_SECRET
+  - name: JWT_SECRET
     value: Nurani110
