@@ -53,11 +53,12 @@
 
     <!-- JSONEditor & Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.5.1/dist/jsoneditor.min.js"></script>
+    <script src="/config.js"></script>
     <script src="js/db.js"></script>
     <script>
       const urlParams = new URLSearchParams(window.location.search);
       let filename = urlParams.get("file");
-      const db = new RealtimeDB(process.env.WSS_URL);
+      const db = new RealtimeDB(window.CONFIG.WSS_URL);
 
       document.addEventListener("DOMContentLoaded", function () {
         if (!filename) {

@@ -9,6 +9,6 @@ COPY . .
 
 RUN mkdir -p /app/data
 
-EXPOSE 3000
+EXPOSE 8008
 
 CMD ["pm2-runtime", "ecosystem.config.js"]

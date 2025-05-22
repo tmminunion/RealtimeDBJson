@@ -44,6 +44,12 @@ app.get("/chat", (_, res) =>
   res.sendFile(path.join(__dirname, "public/chat.html"))
 );
 
+app.get("/config.js", (req, res) => {
+  res.type("application/javascript");
+  res.send(`window.CONFIG = {
+    WSS_URL: "${process.env.WSS_URL}"
+  };`);
+});
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
