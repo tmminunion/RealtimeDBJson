@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -43,14 +43,18 @@
 
     <!-- JSONEditor & Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.5.1/dist/jsoneditor.min.js"></script>
+      <script src="db.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = new URLSearchParams(window.location.search);
         let filename = urlParams.get("file");
+      const db = new RealtimeDB("ws://localhost:8008");
+      
+      document.addEventListener("DOMContentLoaded", function () {
+        
 
         if (!filename) {
           alert("No file specified. Redirecting to dashboard.");
-          window.location.href = "dashboard.html";
+          window.location.href = "dashboard";
           return;
         }
 
@@ -76,7 +80,10 @@
               alert("Error loading data: " + err.message);
             });
         }
-
+db.on(filename, (data) => {
+        console.log("Update received:", data);
+        loadData();
+      });
         // Save button
         document.getElementById("save").addEventListener("click", () => {
           const data = editor.get();
@@ -143,7 +150,7 @@
               });
               if (!res.ok) throw new Error("Delete failed");
               alert("File deleted successfully");
-              window.location.href = "dashboard.html";
+              window.location.href = "list";
             } catch (err) {
               console.error("Delete error:", err);
               alert("Error deleting file: " + err.message);
