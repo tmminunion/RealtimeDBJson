@@ -8,10 +8,12 @@
 }
 
 .message {
+    position: relative;
     margin-bottom: 10px;
     padding: 8px 12px;
     border-radius: 15px;
     max-width: 70%;
+    clear: both;
 }
 
 .message.sent {
@@ -21,12 +23,39 @@
     border-bottom-right-radius: 0;
 }
 
+
 .message.received {
     background-color: #e9ecef;
     margin-right: auto;
     border-bottom-left-radius: 0;
 }
 
+
+.message.sent::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    right: -10px;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-left-color: #007bff;
+    border-right: 0;
+    margin-top: -2px;
+}
+
+.message.received::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-right-color: #d4edda; /* ganti sesuai background pesan kamu */
+    border-left: 0;
+    margin-top: -2px;
+}
 .message-info {
     font-size: 0.8em;
     margin-bottom: 3px;

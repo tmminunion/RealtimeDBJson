@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const jsonFilesRouter = require("./routes/jsonFiles");
 const authRouter = require("./routes/auth");
 const authenticateToken = require("./middleware/auth");
-
+const jsonFilesCreate = require("./routes/jsonCreate");
 const app = express();
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -25,6 +25,7 @@ app.use((req, res, next) => {
 // Route login
 app.use("/api/login", authRouter); // public
 app.use("/api/files", authenticateToken, jsonFilesRouter); // Protected
+app.use("/api/create", authenticateToken, jsonFilesCreate); // Protected
 //app.use("/api/files", jsonFilesRouter);
 app.use("/api", authRouter);
 // Public API
