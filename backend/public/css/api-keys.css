@@ -1,0 +1,21 @@
+body {
+  padding-top: 20px;
+  background-color: #f8f9fa;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+code {
+  color: #d63384;
+  word-break: break-all;
+}
+
+.table {
+  margin-top: 20px;
+}
+
+#apiKeysList {
+  min-height: 200px;
+}

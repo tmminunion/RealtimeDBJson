@@ -17,4 +17,29 @@ router.post("/login", (req, res) => {
   }
 });
 
+router.get('/verify-token', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ valid: false, message: 'No token provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ valid: false, message: 'Invalid token' });
+    }
+    
+    // Token is valid
+    res.json({ 
+      valid: true,
+      user: {
+        id: user.id,
+        username: user.username
+        // Add other user fields you need
+      }
+    });
+  });
+});
+
 module.exports = router;

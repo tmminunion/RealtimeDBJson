@@ -1,4 +1,4 @@
-require("dotenv").config(); // Load environment variables
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -8,12 +8,19 @@ const authRouter = require("./routes/auth");
 const authenticateToken = require("./middleware/auth");
 const jsonFilesCreate = require("./routes/jsonCreate");
 const jsonFilesData = require("./routes/data");
+const apiKeysRouter = require("./routes/apiKeys"); // Add this line
+
 const app = express();
+
+// View engine setup for API keys management
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
 app.use(bodyParser.json());
 app.use(express.static("public"));
 app.use(express.json());
 
-// CORS (opsional, kalau dari frontend berbeda origin)
+// CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -23,32 +30,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// Route login
-app.use("/api/login", authRouter); // public
-app.use("/api/files", authenticateToken, jsonFilesRouter); // Protected
-app.use("/api/permit", authenticateToken, jsonPermit); // Protected
-app.use("/api/create", authenticateToken, jsonFilesCreate); // Protected
-app.use("/api/data", jsonFilesData); // Protected
-//app.use("/api/files", jsonFilesRouter);
-app.use("/api", authRouter);
-// Public API
+// Routes
 
-// Routes for frontend
-app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "public/index.html"))
-);
-app.get("/editor", (_, res) =>
-  res.sendFile(path.join(__dirname, "public/editor.html"))
-);
-app.get("/editor_permission", (_, res) =>
-  res.sendFile(path.join(__dirname, "public/editor_permission.html"))
-);
-app.get(["/list", "/dashboard"], (_, res) =>
-  res.sendFile(path.join(__dirname, "public/list.html"))
-);
-app.get("/chat", (_, res) =>
-  res.sendFile(path.join(__dirname, "public/chat.html"))
-);
+app.use("/api/files", authenticateToken, jsonFilesRouter);
+app.use("/api/permit", authenticateToken, jsonPermit);
+app.use("/api/create", authenticateToken, jsonFilesCreate);
+app.use("/api/data", jsonFilesData);
+app.use("/auth", authRouter);
+app.use("/api/keys", authenticateToken, apiKeysRouter); // Add this line for API keys management
+
+// Frontend routes
+app.get("/", (_, res) => res.sendFile(path.join(__dirname, "public/index.html")));
+app.get("/editor", (_, res) => res.sendFile(path.join(__dirname, "public/editor.html")));
+app.get("/editor_permission", (_, res) => res.sendFile(path.join(__dirname, "public/editor_permission.html")));
+app.get(["/list", "/dashboard"], (_, res) => res.sendFile(path.join(__dirname, "public/list.html")));
+app.get("/chat", (_, res) => res.sendFile(path.join(__dirname, "public/chat.html")));
+app.get("/api-keys", (_, res) => { // Add this route for the UI
+  res.render('apiKeys/index');
+});
 
 app.get("/config.js", (req, res) => {
   res.type("application/javascript");
@@ -56,6 +55,7 @@ app.get("/config.js", (req, res) => {
     WSS_URL: "${process.env.WSS_URL}"
   };`);
 });
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);

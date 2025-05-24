@@ -1,13 +1,20 @@
 {
-    "keys": [
-      {
-        "key": "supersecret1",
-        "description": "Key for frontend app"
-      },
-      {
-        "key": "service-access-abc",
-        "description": "Internal microservice key"
-      }
-    ]
-  }
-  
+  "keys": [
+    {
+      "key": "hPAZBtl8wGt3L9aRr3xGPXFnVLI",
+      "description": "Siap deui"
+    },
+    {
+      "key": "HjlxsK8S8Nz-KZUrORz1NQdKs5S",
+      "description": "waw"
+    },
+    {
+      "key": "1-b_n288bHHJPufx1c5-OEz2Cbt",
+      "description": "Fsfgv"
+    },
+    {
+      "key": "mBfXLrHcEJMi27HocRj7mMzOkc2",
+      "description": "Yrsg"
+    }
+  ]
+}
