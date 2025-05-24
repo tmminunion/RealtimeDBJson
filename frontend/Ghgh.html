@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RealtimeDB Test</title>
+</head>
+<body>
+   
+    <script>
+
+        
+        function loadRealtimeDB() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://nudb.nufat.id/js/db.js';
+        script.onload = () => resolve(window.RealtimeDB);
+        script.onerror = () => reject(new Error('Failed to load RealtimeDB'));
+        document.head.appendChild(script);
+    });
+}
+
+// Usage
+loadRealtimeDB()
+    .then(RealtimeDB => {
+        const db = new RealtimeDB('wss://nudb.nufat.id');
+        // Use your database here
+    })
+    .catch(error => {
+        console.error(error);
+    });
+    </script>
+</body>
+</html>

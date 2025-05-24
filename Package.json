@@ -1,0 +1,7 @@
+{
+  "name": "nudb",
+  "version": "1.0.0",
+  "main": "db.min.js",
+  "files": ["db.js", "db.min.js"],
+  "keywords": ["realtime", "websocket", "database"]
+}
