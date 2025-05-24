@@ -121,3 +121,17 @@ function getUsernameColor(name) {
   const hue = hash % 360;
   return `hsl(${hue}, 70%, 85%)`;
 }
+
+db.get("messages", (messages) => {
+  chatMessages.innerHTML = "";
+
+  if (messages) {
+    const sortedMessages = Object.entries(messages).sort(
+      (a, b) => new Date(a[0]) - new Date(b[0])
+    );
+
+    sortedMessages.forEach(([_, msg]) => {
+      addMessageToChat(msg);
+    });
+  }
+});

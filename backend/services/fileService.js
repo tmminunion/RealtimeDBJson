@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const DATA_DIR = path.join(__dirname, "../data");
+const DATA_DIR_PER = path.join(__dirname, "../permissions");
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 const rooms = new Map();
@@ -23,6 +24,23 @@ function loadDataFile(filePath) {
 function saveData(filePath, data) {
   try {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+
+    // Cek dan buat file permission jika belum ada
+    const baseName = path.basename(filePath, ".json");
+    const permissionFile = path.join(DATA_DIR_PER, `${baseName}.json`);
+
+    if (!fs.existsSync(permissionFile)) {
+      const defaultPermissions = {
+        read: true,
+        write: true,
+      };
+      fs.writeFileSync(
+        permissionFile,
+        JSON.stringify(defaultPermissions, null, 2)
+      );
+      console.log(`🔐 Created permission file: ${permissionFile}`);
+    }
+
     return true;
   } catch (err) {
     console.error("Error saving data file:", err);

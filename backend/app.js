@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const jsonFilesRouter = require("./routes/jsonFiles");
+const jsonPermit = require("./routes/jsonPermit");
 const authRouter = require("./routes/auth");
 const authenticateToken = require("./middleware/auth");
 const jsonFilesCreate = require("./routes/jsonCreate");
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 // Route login
 app.use("/api/login", authRouter); // public
 app.use("/api/files", authenticateToken, jsonFilesRouter); // Protected
+app.use("/api/permit", authenticateToken, jsonPermit); // Protected
 app.use("/api/create", authenticateToken, jsonFilesCreate); // Protected
 app.use("/api/data", jsonFilesData); // Protected
 //app.use("/api/files", jsonFilesRouter);
@@ -37,6 +39,9 @@ app.get("/", (_, res) =>
 );
 app.get("/editor", (_, res) =>
   res.sendFile(path.join(__dirname, "public/editor.html"))
+);
+app.get("/editor_permission", (_, res) =>
+  res.sendFile(path.join(__dirname, "public/editor_permission.html"))
 );
 app.get(["/list", "/dashboard"], (_, res) =>
   res.sendFile(path.join(__dirname, "public/list.html"))

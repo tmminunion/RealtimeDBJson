@@ -80,12 +80,18 @@
             editBtn.textContent = "Edit";
             editBtn.onclick = () => editFile(file);
 
+            const permissionBtn = document.createElement("button");
+            permissionBtn.className = "btn btn-sm btn-outline-secondary me-2";
+            permissionBtn.textContent = "Permissions";
+            permissionBtn.onclick = () => editPermission(file);
+
             const deleteBtn = document.createElement("button");
             deleteBtn.className = "btn btn-sm btn-outline-danger";
             deleteBtn.textContent = "Delete";
             deleteBtn.onclick = () => deleteFile(file);
 
             actions.appendChild(editBtn);
+            actions.appendChild(permissionBtn);
             actions.appendChild(deleteBtn);
 
             cardBody.appendChild(title);
@@ -106,6 +112,9 @@
 
       function editFile(filename) {
         window.location.href = `editor?file=${filename}`;
+      }
+      function editPermission(filename) {
+        window.location.href = `editor_permission?file=${filename}`;
       }
 
       async function deleteFile(filename) {
