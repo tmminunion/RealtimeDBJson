@@ -1,16 +1,28 @@
-name: Release
+name: Auto Release
+
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ "main" ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
+      
+      - name: Minify JS
+        run: |
           npm install terser -g
           terser db.js -o db.min.js --compress --mangle
-      - uses: stefanzweifel/git-auto-commit-action@v5
+
+      - name: Create Release
+        if: github.ref == 'refs/heads/main'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          commit_message: "Minify for release"
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: Auto-generated release
+          files: |
+            db.min.js
