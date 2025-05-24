@@ -7,6 +7,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # ⬅️ Izin penting!
     steps:
       - uses: actions/checkout@v4
 
@@ -17,11 +19,10 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: github.ref == 'refs/heads/main'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # atau secrets.PAT untuk private repo
         with:
           files: db.min.js
-          tag_name: v${{ github.run_number }}
-          name: "Release v${{ github.run_number }}"
+          tag_name: v$(date +%Y.%m.%d-%H%M%S)  # ⬅️ Format tanggal sebagai tag
+          name: "Release $(date +%Y-%m-%d)"
           body: "Auto-generated release"
