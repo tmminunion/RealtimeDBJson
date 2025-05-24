@@ -5,24 +5,23 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Minify JS
         run: |
           npm install terser -g
           terser db.js -o db.min.js --compress --mangle
 
       - name: Create Release
+        uses: softprops/action-gh-release@v1
         if: github.ref == 'refs/heads/main'
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          files: db.min.js
           tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }}
-          body: Auto-generated release
-          files: |
-            db.min.js
+          name: "Release v${{ github.run_number }}"
+          body: "Auto-generated release"
