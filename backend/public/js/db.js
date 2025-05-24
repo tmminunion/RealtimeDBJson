@@ -51,6 +51,15 @@ class RealtimeDB {
       setTimeout(() => this.connect(), 3000);
     };
   }
+  _generateId() {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let str = "";
+    for (let i = 0; i < 17; i++) {
+      str += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `${Date.now()}${str}`;
+  }
 
   sendMessage(msg) {
     if (this.socket.readyState === 1) {
@@ -82,14 +91,16 @@ class RealtimeDB {
   }
 
   set(path, data) {
-    console.log("update path = ", path);
-    console.log("update data = ", data);
     this.sendMessage({ type: "set", path, data });
+  }
+  push(path, data) {
+    const id = this._generateId();
+    const fullPath = `${path}/${id}`;
+    this.set(fullPath, data);
+    return id;
   }
 
   update(path, data) {
-    console.log("update path = ", path);
-    console.log("update data = ", data);
     this.sendMessage({ type: "update", path, data });
   }
 

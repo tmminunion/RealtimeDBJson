@@ -4,13 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JSONEditor - Dynamic File</title>
-
-    <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet" />
     <link
       href="https://cdn.jsdelivr.net/npm/jsoneditor@9.5.1/dist/jsoneditor.min.css"
       rel="stylesheet"
     />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
       #jsoneditor {
         width: 100%;
@@ -20,87 +24,92 @@
       }
     </style>
     <script>
-      // Cek token login
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("You must log in first");
-        window.location.href = "/";
+      if (!localStorage.getItem("token")) {
+        Swal.fire("Unauthorized", "You must log in first", "warning").then(
+          () => {
+            window.location.href = "/";
+          }
+        );
       }
     </script>
   </head>
   <body class="bg-light">
     <div class="container py-5">
-      <div class="mb-3">
-        <a href="dashboard" class="btn btn-secondary">← Back to Dashboard</a>
-      </div>
-
-      <div id="filename-display" class="alert alert-info fw-bold"></div>
       <div
-        class="alert alert-info"
-        id="status-message"
-        style="display: none"
-      ></div>
+        class="position-relative mb-3 d-flex justify-content-between align-items-center"
+      >
+        <!-- Kiri -->
+        <a href="dashboard" class="btn btn-secondary">← Back to Dashboard</a>
 
-      <div id="jsoneditor" class="mb-4"></div>
+        <!-- Tengah -->
+        <div
+          id="filename-display"
+          class="position-absolute start-50 translate-middle-x text-center fw-bold text-primary"
+        ></div>
 
-      <div class="d-flex flex-wrap gap-2">
-        <button id="save" class="btn btn-success">💾 Save</button>
-        <button id="reload" class="btn btn-outline-primary">🔄 Reload</button>
-        <button id="rename" class="btn btn-warning">✏️ Rename File</button>
-        <button id="delete" class="btn btn-danger">🗑️ Delete File</button>
+        <!-- Kanan -->
+        <div class="d-flex gap-2">
+          <button id="save" class="btn btn-success">💾 Save</button>
+          <button id="reload" class="btn btn-outline-primary">🔄 Reload</button>
+        </div>
       </div>
+
+      <div id="status-message" style="display: none"></div>
+      <div id="jsoneditor" class="mb-4"></div>
     </div>
 
-    <!-- JSONEditor & Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.5.1/dist/jsoneditor.min.js"></script>
     <script src="/config.js"></script>
     <script src="js/db.js"></script>
+
     <script>
+      const token = localStorage.getItem("token");
       const urlParams = new URLSearchParams(window.location.search);
       let filename = urlParams.get("file");
       const db = new RealtimeDB(window.CONFIG.WSS_URL);
 
       document.addEventListener("DOMContentLoaded", function () {
         if (!filename) {
-          alert("No file specified. Redirecting to dashboard.");
-          window.location.href = "dashboard";
+          Swal.fire(
+            "No File",
+            "No file specified. Redirecting to dashboard.",
+            "warning"
+          ).then(() => {
+            window.location.href = "dashboard";
+          });
           return;
         }
 
         const filenameDisplay = document.getElementById("filename-display");
-        filenameDisplay.textContent = `Editing: ${filename}.json`;
+        filenameDisplay.innerHTML = `<i class="bi bi-file-earmark-text"></i> Editing: ${filename}.json`;
 
         const container = document.getElementById("jsoneditor");
         const editor = new JSONEditor(container, {
           mode: "tree",
           modes: ["code", "tree", "form", "text", "view"],
-          onError: (err) => alert(err.toString()),
+          onError: (err) => Swal.fire("Editor Error", err.toString(), "error"),
         });
 
         function loadData() {
-          showStatus("Loading data...", "info");
-          console.log(filename);
+          showToast("Loading data...", "info");
           db.get(filename, (data) => {
-            console.log("Initial data loaded:", data);
             try {
-              if (data) {
-                editor.set(data); // ⬅️ tambahkan ini
-                showStatus("Data loaded successfully", "success");
-              } else {
-                editor.set({}); // fallback jika tidak ada data
-                showStatus("No data found - created empty object", "info");
-              }
+              editor.set(data || {});
+              showToast(
+                data
+                  ? "Data loaded successfully"
+                  : "No data found - created empty object",
+                "success"
+              );
             } catch (e) {
-              console.error("Error loading data:", e);
-              showStatus("Error loading data. Invalid JSON format.", "danger");
+              console.error(e);
+              showToast("Invalid JSON format", "error");
             }
           });
         }
-        db.on(filename, (data) => {
-          console.log("Update received:", data);
-          loadData();
-        });
-        // Save button
+
+        db.on(filename, () => loadData());
+
         document.getElementById("save").addEventListener("click", () => {
           const data = editor.get();
           fetch(`/api/files/${filename}`, {
@@ -115,79 +124,24 @@
               if (!res.ok) throw new Error("Failed to save");
               return res.json();
             })
-            .then((res) => alert(res.message || "Saved successfully"))
-            .catch((err) => {
-              console.error("Save error:", err);
-              alert("Error saving: " + err.message);
-            });
+            .then((res) =>
+              showToast(res.message || "Saved successfully", "success")
+            )
+            .catch((err) => Swal.fire("Save Error", err.message, "error"));
         });
 
-        // Reload button
         document.getElementById("reload").addEventListener("click", loadData);
 
-        // Rename button
-        document
-          .getElementById("rename")
-          .addEventListener("click", async () => {
-            const newName = prompt(
-              "Enter new filename (without .json):",
-              filename
-            );
-            if (!newName || newName === filename) return;
-
-            try {
-              const data = editor.get();
-              // Create new file with same content
-              const res = await fetch(`/api/files/${newName}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-              });
-              if (!res.ok) throw new Error("Failed to create new file");
-
-              // Delete old file
-              await fetch(`/api/files/${filename}`, { method: "DELETE" });
-
-              alert("File renamed successfully");
-              window.location.href = `editor?file=${newName}`;
-            } catch (err) {
-              console.error("Rename error:", err);
-              alert("Error renaming: " + err.message);
-            }
+        function showToast(message, icon = "info") {
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            icon,
+            title: message,
           });
-
-        function showStatus(message, type) {
-          const statusEl = document.getElementById("status-message");
-          statusEl.textContent = message;
-          statusEl.className = `alert alert-${type}`;
-          statusEl.style.display = "block";
-
-          if (type !== "warning") {
-            setTimeout(() => {
-              statusEl.style.display = "none";
-            }, 5000);
-          }
         }
-
-        // Delete button
-        document
-          .getElementById("delete")
-          .addEventListener("click", async () => {
-            if (!confirm(`Are you sure you want to delete ${filename}.json?`))
-              return;
-
-            try {
-              const res = await fetch(`/api/files/${filename}`, {
-                method: "DELETE",
-              });
-              if (!res.ok) throw new Error("Delete failed");
-              alert("File deleted successfully");
-              window.location.href = "list";
-            } catch (err) {
-              console.error("Delete error:", err);
-              alert("Error deleting file: " + err.message);
-            }
-          });
 
         loadData();
       });

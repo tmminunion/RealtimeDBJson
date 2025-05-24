@@ -1,14 +1,16 @@
 const db = new RealtimeDB(window.CONFIG.WSS_URL);
+console.log(window.CONFIG.WSS_URL);
+const chatMessages = document.getElementById("chat-messages");
+const messageInput = document.getElementById("message-input");
+const sendButton = document.getElementById("send-button");
 
-const chatMessages = document.getElementById('chat-messages');
-const messageInput = document.getElementById('message-input');
-const sendButton = document.getElementById('send-button');
+let username = "Anonymous";
 
-let username = 'Anonymous';
-
-document.addEventListener('DOMContentLoaded', () => {
-  const storedUsername = localStorage.getItem('chatUsername');
-  const usernameModal = new bootstrap.Modal(document.getElementById('usernameModal'));
+document.addEventListener("DOMContentLoaded", () => {
+  const storedUsername = localStorage.getItem("chatUsername");
+  const usernameModal = new bootstrap.Modal(
+    document.getElementById("usernameModal")
+  );
 
   if (storedUsername) {
     username = storedUsername;
@@ -17,20 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
     usernameModal.show();
   }
 
-  document.getElementById('modal-set-username').addEventListener('click', () => {
-    const input = document.getElementById('modal-username-input').value.trim();
-    if (input) {
-      username = input;
-      localStorage.setItem('chatUsername', username);
-      addSystemMessage(`Username diset: ${username}`);
-      usernameModal.hide();
-    }
-  });
+  document
+    .getElementById("modal-set-username")
+    .addEventListener("click", () => {
+      const input = document
+        .getElementById("modal-username-input")
+        .value.trim();
+      if (input) {
+        username = input;
+        localStorage.setItem("chatUsername", username);
+        addSystemMessage(`Username diset: ${username}`);
+        usernameModal.hide();
+      }
+    });
 });
 
-sendButton.addEventListener('click', sendMessage);
-messageInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
+sendButton.addEventListener("click", sendMessage);
+messageInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
     sendMessage();
   }
 });
@@ -42,20 +48,21 @@ function sendMessage() {
     const message = {
       username,
       text: messageText,
-      timestamp
+      timestamp,
     };
 
-    db.set(`messages/${timestamp}`, message);
-    messageInput.value = '';
+    db.push(`messages`, message);
+    messageInput.value = "";
   }
 }
 
-db.on('messages', (messages) => {
-  chatMessages.innerHTML = '';
+db.on("messages", (messages) => {
+  chatMessages.innerHTML = "";
 
   if (messages) {
-    const sortedMessages = Object.entries(messages)
-      .sort((a, b) => new Date(a[0]) - new Date(b[0]));
+    const sortedMessages = Object.entries(messages).sort(
+      (a, b) => new Date(a[0]) - new Date(b[0])
+    );
 
     sortedMessages.forEach(([_, msg]) => {
       addMessageToChat(msg);
@@ -64,22 +71,24 @@ db.on('messages', (messages) => {
 });
 
 function addMessageToChat(message) {
-  const messageDiv = document.createElement('div');
-  messageDiv.classList.add('p-2', 'mb-2', 'rounded');
+  const messageDiv = document.createElement("div");
+  messageDiv.classList.add("p-2", "mb-2", "rounded");
 
   if (message.username === username) {
-    messageDiv.classList.add('text-end');
+    messageDiv.classList.add("text-end");
   } else {
-    messageDiv.classList.add('text-start');
+    messageDiv.classList.add("text-start");
   }
 
   messageDiv.style.backgroundColor = getUsernameColor(message.username);
 
-  const infoDiv = document.createElement('div');
-  infoDiv.classList.add('small', 'fw-bold');
-  infoDiv.textContent = `${message.username} - ${new Date(message.timestamp).toLocaleTimeString()}`;
+  const infoDiv = document.createElement("div");
+  infoDiv.classList.add("small", "fw-bold");
+  infoDiv.textContent = `${message.username} - ${new Date(
+    message.timestamp
+  ).toLocaleTimeString()}`;
 
-  const textDiv = document.createElement('div');
+  const textDiv = document.createElement("div");
   textDiv.textContent = message.text;
 
   messageDiv.appendChild(infoDiv);
@@ -90,8 +99,14 @@ function addMessageToChat(message) {
 }
 
 function addSystemMessage(text) {
-  const systemMessage = document.createElement('div');
-  systemMessage.classList.add('alert', 'alert-info', 'text-center', 'py-1', 'my-2');
+  const systemMessage = document.createElement("div");
+  systemMessage.classList.add(
+    "alert",
+    "alert-info",
+    "text-center",
+    "py-1",
+    "my-2"
+  );
   systemMessage.textContent = text;
   chatMessages.appendChild(systemMessage);
 

@@ -4,8 +4,13 @@ const {
   writeJsonFile,
   isValidJson,
   getJsonFiles,
+  deleteJsonFile,
 } = require("../utils/fileManager");
 
+const {
+  createDefaultPermissionFile,
+  deletePermissionFile,
+} = require("../utils/permissionManager");
 // Middleware validasi filename
 const validateFilename = (req, res, next) => {
   const { filename } = req.params;
@@ -24,10 +29,6 @@ const validateJson = (req, res, next) => {
   }
   next();
 };
-
-
-
-
 
 // Tambahkan fungsi untuk nama file unik
 function generateUniqueFilename(baseName) {
@@ -52,6 +53,8 @@ router
     const success = writeJsonFile(uniqueFilename, req.body);
 
     if (success) {
+      createDefaultPermissionFile(uniqueFilename); // ⬅️ Tambahkan ini
+
       res.json({
         success: true,
         message: `Data saved to ${uniqueFilename}.json`,
@@ -60,6 +63,27 @@ router
     } else {
       res.status(500).json({ error: "Failed to save file" });
     }
+  })
+  .delete((req, res) => {
+    const { filename } = req.params;
+
+    const fileResult = deleteJsonFile(filename);
+    const permissionResult = deletePermissionFile(filename);
+
+    if (fileResult.success && permissionResult.success) {
+      return res.json({
+        success: true,
+        message: `File ${filename}.json and permission deleted successfully.`,
+      });
+    }
+
+    return res.status(500).json({
+      error: "Failed to delete one or more files",
+      details: {
+        fileError: fileResult.error || null,
+        permissionError: permissionResult.error || null,
+      },
+    });
   });
 
 module.exports = router;

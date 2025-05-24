@@ -1,0 +1,13 @@
+{
+    "keys": [
+      {
+        "key": "supersecret1",
+        "description": "Key for frontend app"
+      },
+      {
+        "key": "service-access-abc",
+        "description": "Internal microservice key"
+      }
+    ]
+  }
+  

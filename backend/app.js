@@ -2,11 +2,11 @@ require("dotenv").config(); // Load environment variables
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const jwt = require("jsonwebtoken");
 const jsonFilesRouter = require("./routes/jsonFiles");
 const authRouter = require("./routes/auth");
 const authenticateToken = require("./middleware/auth");
 const jsonFilesCreate = require("./routes/jsonCreate");
+const jsonFilesData = require("./routes/data");
 const app = express();
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -26,6 +26,7 @@ app.use((req, res, next) => {
 app.use("/api/login", authRouter); // public
 app.use("/api/files", authenticateToken, jsonFilesRouter); // Protected
 app.use("/api/create", authenticateToken, jsonFilesCreate); // Protected
+app.use("/api/data", jsonFilesData); // Protected
 //app.use("/api/files", jsonFilesRouter);
 app.use("/api", authRouter);
 // Public API
