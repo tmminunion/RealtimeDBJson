@@ -6,6 +6,7 @@ const {
   setNestedProperty,
   getNestedProperty,
 } = require("./fileService");
+const checkWsAccess = require("../middleware/wsAuth");
 
 const rooms = new Map();
 
@@ -15,8 +16,8 @@ function handleWebSocket(server) {
   wss.on("connection", (ws) => {
     console.log("🔌 Client connected");
 
-    ws.on("message", (msg) => {
-      console.log("📩 Received message from WebSocket:", JSON.parse(msg));
+    ws.on("message", async (msg) => {
+      
       let data;
       try {
         data = JSON.parse(msg);
@@ -25,11 +26,26 @@ function handleWebSocket(server) {
         return;
       }
 
+// Extract headers (optional, from data.headers)
+  const headers = data.headers || {};
+const rules = data.type === "get" ? "read"
+               : data.type === "set" ? "write"
+               : data.type === "delete" ? "write"
+               : data.type === "update" ? "write"
+               : "read"; // default
+console.log(data);
+  const auth = checkWsAccess(rules, data, headers);
+  if (!auth.authorized) {
+    return ws.send(JSON.stringify({ error: "Unauthorized", detail: auth.error }));
+  }
+
+
+console.log("📩 Received:", JSON.parse(msg));
       // Handle set operation
       if (data.type === "set" && data.path) {
         const filePath = getFilePath(data.path);
         let fileData = loadDataFile(filePath);
-        console.log(`💾 ada sett data to ${filePath}`);
+        
         // Update nested data
         fileData = setNestedProperty(fileData || {}, data.path, data.data);
 

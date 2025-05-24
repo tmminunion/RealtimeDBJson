@@ -66,7 +66,11 @@
       const token = localStorage.getItem("token");
       const urlParams = new URLSearchParams(window.location.search);
       let filename = urlParams.get("file");
-      const db = new RealtimeDB(window.CONFIG.WSS_URL);
+      const db = new RealtimeDB(window.CONFIG.WSS_URL, {
+  headers: {
+    "authorization": "Bearer " + token,
+  }
+});
 
       document.addEventListener("DOMContentLoaded", function () {
         if (!filename) {

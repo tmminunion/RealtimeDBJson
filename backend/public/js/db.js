@@ -1,10 +1,11 @@
 class RealtimeDB {
-  constructor(wsUrl) {
+  constructor(wsUrl, options = {}) {
     this.wsUrl = wsUrl;
     this.socket = null;
     this.listeners = {};
     this.dataCallbacks = {};
-    this.queue = []; // ⬅️ Antrian perintah
+    this.queue = [];
+    this.headers = options.headers || {}; // ⬅️ Header bisa di-set saat inisialisasi
     this.connect();
   }
 
@@ -14,13 +15,11 @@ class RealtimeDB {
     this.socket.onopen = () => {
       console.log("🟢 WebSocket connected");
 
-      // Jalankan semua yang ada di queue
       while (this.queue.length > 0) {
         const action = this.queue.shift();
         this.socket.send(JSON.stringify(action));
       }
 
-      // Resubscribe semua listener
       Object.keys(this.listeners).forEach((path) => {
         this.sendMessage({ type: "subscribe", path });
       });
@@ -51,6 +50,7 @@ class RealtimeDB {
       setTimeout(() => this.connect(), 3000);
     };
   }
+
   _generateId() {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -61,11 +61,20 @@ class RealtimeDB {
     return `${Date.now()}${str}`;
   }
 
+  setHeader(key, value) {
+    this.headers[key] = value;
+  }
+
   sendMessage(msg) {
+    const fullMsg = {
+      ...msg,
+      headers: this.headers, // ⬅️ Tambahkan headers di setiap pesan
+    };
+
     if (this.socket.readyState === 1) {
-      this.socket.send(JSON.stringify(msg));
+      this.socket.send(JSON.stringify(fullMsg));
     } else {
-      this.queue.push(msg); // ⬅️ simpan di antrian dulu
+      this.queue.push(fullMsg);
     }
   }
 
@@ -93,6 +102,7 @@ class RealtimeDB {
   set(path, data) {
     this.sendMessage({ type: "set", path, data });
   }
+
   push(path, data) {
     const id = this._generateId();
     const fullPath = `${path}/${id}`;
@@ -109,7 +119,6 @@ class RealtimeDB {
   }
 }
 
-// For CDN usage
 if (typeof window !== "undefined") {
   window.RealtimeDB = RealtimeDB;
 }

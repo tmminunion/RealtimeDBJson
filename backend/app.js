@@ -9,7 +9,7 @@ const authenticateToken = require("./middleware/auth");
 const jsonFilesCreate = require("./routes/jsonCreate");
 const jsonFilesData = require("./routes/data");
 const apiKeysRouter = require("./routes/apiKeys"); // Add this line
-
+const datajson = require("./routes/datajson");
 const app = express();
 
 // View engine setup for API keys management
@@ -36,6 +36,8 @@ app.use("/api/files", authenticateToken, jsonFilesRouter);
 app.use("/api/permit", authenticateToken, jsonPermit);
 app.use("/api/create", authenticateToken, jsonFilesCreate);
 app.use("/api/data", jsonFilesData);
+app.use("/api/datajson", datajson);
+
 app.use("/auth", authRouter);
 app.use("/api/keys", authenticateToken, apiKeysRouter); // Add this line for API keys management
 
