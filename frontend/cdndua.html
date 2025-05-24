@@ -54,9 +54,16 @@
         return result;
       }
     </script>
-     <script src="https://cdn.jsdelivr.net/gh/tmminunion/RealtimeDBJson@v1.0.2/db.min.js"></script>
+<!--      <script src="https://cdn.jsdelivr.net/gh/tmminunion/RealtimeDBJson@v1.0.2/db.min.js"></script> -->
+           <script src="db.js"></script>
     <script>
-      const db = new RealtimeDB("ws://localhost:8008");
+      
+const db = new RealtimeDB("ws://localhost:8008", {
+  headers: {
+    "x-api-key": "3LPyJ9wGId5XibWK9uoybkm7i5Y"
+  }
+});
+
       let connectionStatus = document.getElementById("status");
 
       // Connection status updates
