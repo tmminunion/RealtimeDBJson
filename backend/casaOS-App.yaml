@@ -15,6 +15,8 @@ volumes:
 envs:
   - name: NODE_ENV
     value: production
+  - name: PORT
+    value: 8008
   - name: ADMIN_USERNAME
     value: admin
   - name: ADMIN_PASSWORD
@@ -22,6 +24,6 @@ envs:
   - name: JWT_SECRET
     value: Nurani110
   - name: WSS_URL
-    value: ws://192.168.1.50:8008  # Sesuaikan dengan IP server
+    value: wss://nudb.nufat.id # Sesuaikan dengan IP server
 index: /
 category: Utilities
