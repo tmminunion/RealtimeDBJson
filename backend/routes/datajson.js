@@ -60,21 +60,72 @@ const jsonRoute = [
 ];
 
 // GET
+// GET
 router.get(jsonRoute, checkAccessPermissions("read"), (req, res) => {
   const { filename } = req.params;
   const pathArray = extractPath(req.params);
   const json = readJsonFile(filename);
-
   if (!json) return res.status(404).json({ error: "File not found" });
 
-  const value = getDeep(json, pathArray);
+  let value = getDeep(json, pathArray);
   if (value === undefined) {
     return res.status(404).json({ error: "Path not found in JSON" });
   }
 
-  res.json({ value });
-});
+  // Deteksi apakah value adalah object collection
+  if (typeof value === "object" && !Array.isArray(value)) {
+    const isCollection = Object.values(value).every(
+      (v) => typeof v === "object" && !Array.isArray(v)
+    );
 
+    if (isCollection) {
+      value = Object.entries(value).map(([id, item]) => ({ id, ...item }));
+    } else {
+      return res.json({ value }); // return object/detail view
+    }
+  } else if (!Array.isArray(value)) {
+    return res.json({ value }); // return primitive value
+  }
+
+  // Filtering
+  const { where } = req.query;
+  if (where) {
+    const [field, val] = where.split(":");
+    if (field && val !== undefined) {
+      value = value.filter((item) =>
+        String(item[field]).toLowerCase() === String(val).toLowerCase()
+      );
+    }
+  }
+
+  // Sorting
+  const { sortby, order = "asc" } = req.query;
+  if (sortby) {
+    value.sort((a, b) => {
+      const A = a[sortby], B = b[sortby];
+      if (A < B) return order === "desc" ? 1 : -1;
+      if (A > B) return order === "desc" ? -1 : 1;
+      return 0;
+    });
+  }
+
+  // Pagination
+  const total = value.length;
+  const limit = parseInt(req.query.limit) || total;
+  const page = parseInt(req.query.page) || 1;
+  const start = (page - 1) * limit;
+  const paginated = value.slice(start, start + limit);
+
+  res.json({
+    value: paginated,
+    meta: {
+      total,
+      limit,
+      page,
+      pages: Math.ceil(total / limit),
+    },
+  });
+});
 // POST / PUT
 router.post(jsonRoute, checkAccessPermissions("write"), (req, res) => {
   const { filename } = req.params;
