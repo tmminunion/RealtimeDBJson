@@ -36,7 +36,7 @@ app.use("/api/files", authenticateToken, jsonFilesRouter);
 app.use("/api/permit", authenticateToken, jsonPermit);
 app.use("/api/create", authenticateToken, jsonFilesCreate);
 app.use("/api/data", jsonFilesData);
-app.use("/api/datajson", datajson);
+app.use("/data", datajson);
 
 app.use("/auth", authRouter);
 app.use("/api/keys", authenticateToken, apiKeysRouter); // Add this line for API keys management
