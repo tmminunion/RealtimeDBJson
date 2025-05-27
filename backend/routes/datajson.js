@@ -5,7 +5,7 @@ const {
   writeJsonFile,
 } = require("../utils/fileManager");
 const checkAccessPermissions = require("../middleware/checkAccessPermissions");
-
+const { broadcastToSubscribers }= require("../services/websocketHandler");
 // Helper untuk mengambil path dari param
 const extractPath = (params) => {
   return ['satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh']
@@ -23,16 +23,17 @@ function getDeep(obj, pathArray) {
 
 // Helper untuk set value dalam json
 function setDeep(obj, pathArray, value) {
-  pathArray.reduce((acc, key, idx) => {
-    const k = !isNaN(key) ? parseInt(key) : key;
-    if (idx === pathArray.length - 1) {
-      acc[k] = value;
-    } else {
-      if (!acc[k]) acc[k] = {};
-      return acc[k];
+  let current = obj;
+  for (let i = 0; i < pathArray.length - 1; i++) {
+    const key = pathArray[i];
+    if (!current[key] || typeof current[key] !== "object") {
+      current[key] = {};
     }
-  }, obj);
+    current = current[key];
+  }
+  current[pathArray[pathArray.length - 1]] = value;
 }
+
 
 // Helper untuk hapus value dalam json
 function deleteDeep(obj, pathArray) {
@@ -134,9 +135,13 @@ router.post(jsonRoute, checkAccessPermissions("write"), (req, res) => {
 
   let json = readJsonFile(filename) || {};
   setDeep(json, pathArray, data);
-
-  const success = writeJsonFile(filename, json);
+console.log("Data to save:", JSON.stringify(json, null, 2));
+const success = writeJsonFile(filename, json);
+  
+  console.log("post---> " , success);
   if (!success) return res.status(500).json({ error: "Failed to write data" });
+const pathStr = `/${filename}/${pathArray.join("/")}`;
+  broadcastToSubscribers(pathStr, data);
 
   res.json({ success: true, value: data });
 });
@@ -152,7 +157,10 @@ router.delete(jsonRoute, checkAccessPermissions("write"), (req, res) => {
   deleteDeep(json, pathArray);
   const success = writeJsonFile(filename, json);
   if (!success) return res.status(500).json({ error: "Failed to delete data" });
-
+const pathStr = `/${filename}/${pathArray.join("/")}`;
+data =[];
+  broadcastToSubscribers(pathStr, data);
+  
   res.json({ success: true });
 });
 

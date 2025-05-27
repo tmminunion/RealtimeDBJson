@@ -10,6 +10,30 @@ const checkWsAccess = require("../middleware/wsAuth");
 
 const rooms = new Map();
 
+function normalizePath(path) {
+  return path.replace(/^\/+|\/+$/g, ''); // hapus "/" di awal dan akhir
+}
+
+const broadcast = (path, data) => {
+  const normalizedPath = normalizePath(path);
+  const msg = JSON.stringify({ type: "update", path: normalizedPath, data });
+
+  const segments = normalizedPath.split("/");
+  for (let i = segments.length; i > 0; i--) {
+    const subPath = segments.slice(0, i).join("/");
+    if (rooms.has(subPath)) {
+      
+      rooms.get(subPath).forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(msg);
+          console.log("📢 Broadcasting to:", subPath);
+        }
+      });
+    }
+  }
+};
+
+
 function handleWebSocket(server) {
   const wss = new WebSocket.Server({ server });
 
@@ -40,7 +64,7 @@ console.log(data);
   }
 
 
-console.log("📩 Received:", JSON.parse(msg));
+
       // Handle set operation
       if (data.type === "set" && data.path) {
         const filePath = getFilePath(data.path);
@@ -168,14 +192,16 @@ console.log("📩 Received:", JSON.parse(msg));
     });
   });
 
-  function broadcast(path, data) {
-    const msg = JSON.stringify({ type: "update", path, data });
-    rooms.get(path)?.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) client.send(msg);
-    });
-  }
+  
 
   console.log("🚀 WebSocket server running");
 }
 
-module.exports = handleWebSocket;
+
+
+module.exports = {
+  handleWebSocket,
+  broadcastToSubscribers: (...args) => broadcast?.(...args), // fungsi yang bisa dipanggil dari luar
+};
+
+//module.exports = handleWebSocket;

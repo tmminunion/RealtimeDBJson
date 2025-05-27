@@ -1,6 +1,6 @@
 const http = require("http");
 const app = require("./app");
-const handleWebSocket = require("./services/websocketHandler");
+const {handleWebSocket }= require("./services/websocketHandler");
 
 const PORT = process.env.PORT || 8008;
 const server = http.createServer(app);
