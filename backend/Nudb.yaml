@@ -9,19 +9,19 @@ services:
         limits:
           memory: 2048M
     environment:
-      - ADMIN_PASSWORD=nufat17a
-      - ADMIN_USERNAME=nufat
-      - JWT_SECRET=nufat17
+      - "WSS_URL=wss://nudb.nufat.id"
+      - ADMIN_PASSWORD=secret123
+      - ADMIN_USERNAME=admin
+      - JWT_SECRET=Nurani110
       - NODE_ENV=production
       - PORT=8008
-      - WSS_URL=wss://nudb.nufat.id
     hostname: Nudb
     image: nufat/nudb:latest
     labels:
       icon: https://icon.casaos.io/main/all/nudb.png
     ports:
       - target: 8008
-        published: "8008"
+        published: "8010"
         protocol: tcp
     restart: unless-stopped
     volumes:

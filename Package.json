@@ -1,7 +1,17 @@
 {
   "name": "nudb",
-  "version": "1.0.3",
+  "version": "1.0.9",
   "main": "db.min.js",
-  "files": ["db.js", "db.min.js"],
-  "keywords": ["realtime", "websocket", "database"]
+  "files": [
+    "db.js",
+    "db.min.js"
+  ],
+  "keywords": [
+    "realtime",
+    "websocket",
+    "database"
+  ],
+  "dependencies": {
+    "nudbclient": "^1.0.3"
+  }
 }
