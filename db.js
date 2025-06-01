@@ -1,4 +1,4 @@
-class RealtimeDB {
+class Nudb {
   constructor(wsUrl, options = {}) {
     this.wsUrl = wsUrl;
     this.socket = null;
