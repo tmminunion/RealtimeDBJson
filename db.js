@@ -120,5 +120,5 @@ class Nudb {
 }
 
 if (typeof window !== "undefined") {
-  window.RealtimeDB = RealtimeDB;
+  window.Nudb = Nudb;
 }
