@@ -1,4 +1,4 @@
-const db = new RealtimeDB(window.CONFIG.WSS_URL);
+const db = new Nudb(window.CONFIG.WSS_URL);
 console.log(window.CONFIG.WSS_URL);
 const chatMessages = document.getElementById("chat-messages");
 const messageInput = document.getElementById("message-input");

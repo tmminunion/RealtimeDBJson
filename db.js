@@ -50,7 +50,9 @@ class Nudb {
       setTimeout(() => this.connect(), 3000);
     };
   }
-
+isConnected() {
+  return this.socket && this.socket.readyState === WebSocket.OPEN;
+}
   _generateId() {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
