@@ -24,23 +24,24 @@ pm2.connect((err) => {
       return;
     }
 
-    console.log('📡 PM2 Log Stream Active - Broadcasting to /_logs');
+    console.log('📡 PM2 Log Stream Active - Broadcasting to /logs/in');
 
     // Tangkap log standar
-    bus.on('log:out', (data) => {
-      if (data.process.name === 'Nudb') { // Pastikan nama proses sesuai di ecosystem.config.js
-        broadcastToSubscribers('/_logs', {
-          type: 'stdout',
-          msg: data.data,
-          time: Date.now()
-        });
-      }
+   // Ganti bagian bus.on di server.js kamu jadi begini:
+bus.on('log:out', (data) => {
+    // Kita hapus filter "if name === 'Nudb'" sementara untuk tes
+    console.log("Cek log PM2:", data.data); // Cek di terminal docker muncul gak
+    broadcastToSubscribers('/logs/in', {
+        type: 'stdout',
+        msg: data.data,
+        time: Date.now()
     });
+});
 
     // Tangkap log error
     bus.on('log:err', (data) => {
       if (data.process.name === 'Nudb') {
-        broadcastToSubscribers('/_logs', {
+        broadcastToSubscribers('/logs/in', {
           type: 'stderr',
           msg: data.data,
           time: Date.now()
