@@ -3,7 +3,7 @@
   <head>
     <title>RealtimeDB Debug</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"></script>
-   
+
     <style>
       #status {
         padding: 10px;
@@ -54,15 +54,14 @@
         return result;
       }
     </script>
-<!--      <script src="https://cdn.jsdelivr.net/gh/tmminunion/RealtimeDBJson@v1.0.2/db.min.js"></script> -->
-           <script src="db.js"></script>
+    <!--      <script src="https://cdn.jsdelivr.net/gh/tmminunion/RealtimeDBJson@v1.0.2/db.min.js"></script> -->
+    <script src="db.js"></script>
     <script>
-      
-const db = new RealtimeDB("ws://localhost:8008", {
-  headers: {
-    "x-api-key": "3LPyJ9wGId5XibWK9uoybkm7i5Y"
-  }
-});
+      const db = new RealtimeDB("wss://wabot.nufat.id", {
+        headers: {
+          "x-api-key": "3LPyJ9wGId5XibWK9uoybkm7i5Y",
+        },
+      });
 
       let connectionStatus = document.getElementById("status");
 
