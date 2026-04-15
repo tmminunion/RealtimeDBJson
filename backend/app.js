@@ -69,17 +69,35 @@ app.get("/config.js", (req, res) => {
 
 
 
+
+
+// Route untuk install package baru secara dinamis
 app.post("/api/install", authenticateToken, (req, res) => {
   const { package: pkgName } = req.body;
-  
-  // Kita jalankan npm install langsung di dalam container
-  // Tidak perlu sudo karena user di dalam container biasanya sudah root/high privilege
+
+  if (!pkgName) {
+    return res.status(400).json({ error: "Nama package wajib diisi" });
+  }
+
+  console.log(`📦 Menginstall package: ${pkgName}...`);
+
+  // Menjalankan npm install di dalam container
+  // Kita tidak perlu sudo karena di dalam container nudb, user sudah punya akses yang cukup
   exec(`npm install ${pkgName}`, (error, stdout, stderr) => {
-    if (error) return res.status(500).json({ error: error.message });
-    
-    res.json({ 
-      success: true, 
-      message: `Package ${pkgName} berhasil dipasang!` 
+    if (error) {
+      console.error(`❌ Install Error: ${error.message}`);
+      return res.status(500).json({ 
+        success: false, 
+        error: error.message,
+        details: stderr 
+      });
+    }
+
+    console.log(`✅ Package ${pkgName} berhasil terpasang!`);
+    res.json({
+      success: true,
+      message: `Berhasil menginstall ${pkgName}`,
+      output: stdout
     });
   });
 });

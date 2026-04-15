@@ -1,14 +1,52 @@
-version: "3.8"
-
+name: kind_teddy
 services:
-  Nudb:
-    build: .
+  main_app:
+    cpu_shares: 50
+    command: []
     container_name: Nudb
-    ports:
-      - "8008:8008"
-    volumes:
-      - ./data:/app/data
-      - ./functions:/app/functions
+    deploy:
+      resources:
+        limits:
+          memory: 11843M
     environment:
+      - ADMIN_PASSWORD=nunu
+      - ADMIN_USERNAME=nufat
+      - JWT_SECRET=Nurani110
       - NODE_ENV=production
+      - PORT=8008
+      - WSS_URL=wss://nudb.nufat.id
+    hostname: Nudb
+    image: nufat/nudb:latest
+    labels:
+      icon: https://wabot.nufat.id/image/1748396147926T12CKcQTcvVQXZQ1AHOk
+    ports:
+      - target: 8008
+        published: "8008"
+        protocol: tcp
     restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /DATA/AppData/Nudb/data
+        target: /app/data
+      - type: bind
+        source: /DATA/AppData/Nudb/permissions
+        target: /app/permissions
+      - type: bind
+        source: /DATA/AppData/Nudb/functions
+        target: /app/functions
+    devices: []
+    cap_add: []
+    network_mode: bridge
+    privileged: false
+x-casaos:
+  author: self
+  category: self
+  hostname: nudb.nufat.id
+  icon: https://wabot.nufat.id/image/1748396147926T12CKcQTcvVQXZQ1AHOk
+  index: /
+  is_uncontrolled: false
+  port_map: ""
+  scheme: https
+  store_app_id: kind_teddy
+  title:
+    custom: Nudb
