@@ -13,6 +13,7 @@ const datajson = require("./routes/datajson");
 const apiV1Router = require("./routes/apiV1Router");
 const app = express();
 const fs = require("fs");
+const { exec } = require("child_process");
 // View engine setup for API keys management
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -67,6 +68,21 @@ app.get("/config.js", (req, res) => {
 });
 
 
+
+app.post("/api/install", authenticateToken, (req, res) => {
+  const { package: pkgName } = req.body;
+  
+  // Kita jalankan npm install langsung di dalam container
+  // Tidak perlu sudo karena user di dalam container biasanya sudah root/high privilege
+  exec(`npm install ${pkgName}`, (error, stdout, stderr) => {
+    if (error) return res.status(500).json({ error: error.message });
+    
+    res.json({ 
+      success: true, 
+      message: `Package ${pkgName} berhasil dipasang!` 
+    });
+  });
+});
 // ================= DEPLOY =================
 app.post("/deploy", authenticateToken, (req, res) => {
   const { name, code } = req.body;
