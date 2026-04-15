@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nudb Chat App</title>
+  <script src="https://cdn.jsdelivr.net/gh/nufatID/Nudb@latest/dist/nudb.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+  <header class="bg-blue-700 text-white p-4 text-center text-xl font-semibold">
+    💬 Nudb Chat
+  </header>  <main class="flex-1 flex flex-col items-center p-4 overflow-y-auto">
+    <div id="chatBox" class="w-full max-w-2xl bg-white rounded shadow p-4 mb-4 h-[60vh] overflow-y-auto">
+      <!-- Chat messages will appear here -->
+    </div>
+    <form id="chatForm" class="w-full max-w-2xl flex gap-2">
+      <input id="nameInput" class="w-1/4 border rounded p-2" placeholder="Your name" required />
+      <input id="messageInput" class="flex-1 border rounded p-2" placeholder="Type your message..." required />
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Send
+      </button>
+    </form>
+  </main>  <footer class="text-center text-sm text-gray-500 p-2">
+    &copy; 2025 Nudb Chat via WebSocket
+  </footer>  <script>
+    const db = new Nudb("wss://nudb.bungtemin.net");
+    const chatBox = document.getElementById("chatBox");
+    const chatForm = document.getElementById("chatForm");
+    const nameInput = document.getElementById("nameInput");
+    const messageInput = document.getElementById("messageInput");
+
+    function renderMessages(messages = {}) {
+      chatBox.innerHTML = Object.entries(messages)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([_, msg]) => {
+          return `<div class="mb-2">
+            <span class="font-semibold text-blue-700">${msg.name}:</span>
+            <span>${msg.text}</span>
+            <div class="text-xs text-gray-500">${new Date(msg.time).toLocaleTimeString()}</div>
+          </div>`;
+        })
+        .join("");
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    db.on("chat", renderMessages);
+
+    db.get("chat", renderMessages);
+
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      const text = messageInput.value.trim();
+      if (!name || !text) return;
+
+      db.push("chat", {
+        name,
+        text,
+        time: new Date().toISOString(),
+      });
+      messageInput.value = "";
+    });
+  </script></body>
+</html>

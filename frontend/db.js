@@ -1,4 +1,4 @@
-class RealtimeDB {
+class Nudb {
   constructor(wsUrl, options = {}) {
     this.wsUrl = wsUrl;
     this.socket = null;
@@ -50,7 +50,9 @@ class RealtimeDB {
       setTimeout(() => this.connect(), 3000);
     };
   }
-
+isConnected() {
+  return this.socket && this.socket.readyState === WebSocket.OPEN;
+}
   _generateId() {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -120,5 +122,5 @@ class RealtimeDB {
 }
 
 if (typeof window !== "undefined") {
-  window.RealtimeDB = RealtimeDB;
+  window.Nudb = Nudb;
 }
